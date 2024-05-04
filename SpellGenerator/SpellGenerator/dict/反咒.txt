@@ -1,0 +1,8 @@
+默认=lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, artist name, bad feet, missing legs, realistic, parody, traditional media, poorly drawn eyes, huge breasts, malformed arm, long neck, ugly, poorly drawn pantie, bad face, poorly drawn pussy, bad thigh gap, extra legs, futa, long face, missing arms, extra arm, bad_prompt
+空白=
+经典=lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry
+经典无nsfw=nsfw, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry
+极简=秋柔嫣姬
+极简增彩=秋柔嫣姬, greyscale
+noval基础=lowres, jpeg artifacts, worst quality, watermark, blurry, very displeasing
+noval增强=

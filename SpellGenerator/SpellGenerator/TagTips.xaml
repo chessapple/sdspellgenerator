@@ -1,0 +1,15 @@
+﻿<UserControl x:Class="SpellGenerator.TagTips"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SpellGenerator"
+      Padding="2" Loaded="TagTips_Loaded" Unloaded="TagTips_Unloaded"
+             mc:Ignorable="d" 
+             Height="Auto" Width="Auto">
+
+    <StackPanel>
+        <TextBlock x:Name="textContent" Text=""/>
+        <Image x:Name="imagePreview" Width="384" Height="384" />
+    </StackPanel>
+</UserControl>

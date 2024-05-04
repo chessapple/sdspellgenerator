@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_LastSelectedProfileId>D:\mysvn\spellgen\SpellGenerator\SpellGenerator\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ApplicationDefinition Update="App.xaml">
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="DialogBatch.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="DialogBatchGenStatus.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="DialogChooseClassify.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="DialogColorSelector.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="DialogLoraLayer.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="LoraLayerSlider.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="TagControl.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="TagTips.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="DialogBatch.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="DialogBatchGenStatus.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="DialogChooseTag.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="DialogChooseClassify.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="DialogColorSelector.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="DialogLoraLayer.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="LoraLayerSlider.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="MainWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="TagControl.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="TagTips.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Themes\DarkTheme.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+</Project>

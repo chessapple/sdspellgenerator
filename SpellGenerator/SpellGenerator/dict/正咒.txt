@@ -1,0 +1,6 @@
+默认=(masterpiece:1.1), (best quality:1.2), highres, original, extremely detailed wallpaper, official art
+空白=
+经典=masterpiece, best quality
+极简=<lora:翻个的咸鱼手手-v3:0.1>
+novel基础=best quality, amazing quality, very aesthetic, absurdres
+novel增强=best quality, amazing quality, very aesthetic, absurdres

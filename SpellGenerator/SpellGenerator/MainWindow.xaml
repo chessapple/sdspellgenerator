@@ -1,0 +1,537 @@
+﻿<Window x:Class="SpellGenerator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:local="clr-namespace:SpellGenerator" 
+        mc:Ignorable="d"
+    Icon="ic_launcher.png"
+        Style="{DynamicResource CustomWindowStyle}"
+        Title="幻术魔导书 3.4.1" Height="1000" MinHeight="850" Width="1775" MinWidth="1560" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" FontSize="{DynamicResource FontSizeNormal}" Closing="Window_Closing" >
+    <Window.Resources>
+        <local:EmptyStringToNullConverter x:Key="EmptyStringToNullConverter"/>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.5*" MinWidth="300"/>
+            <ColumnDefinition Width="5"/>
+            <ColumnDefinition Width="5*" MinWidth="900"/>
+            <ColumnDefinition Width="5"/>
+            <ColumnDefinition Width="*" MinWidth="320"/>
+        </Grid.ColumnDefinitions>
+        <!-- 左边列表 -->
+        <Grid Grid.Column="0">
+            <Button Margin="0,5,0,0" ContextMenuService.IsEnabled="False"  HorizontalAlignment="Right" Width="30" Height="30" VerticalAlignment="Top" WindowChrome.IsHitTestVisibleInChrome="True">
+                <Image Source="resources/menu.png"/>
+                <i:Interaction.Behaviors>
+                    <local:DropDownButtonBehavior/>
+                </i:Interaction.Behaviors>
+                <Button.ContextMenu>
+                    <ContextMenu VerticalOffset="31" HorizontalOffset="-30">
+                        <MenuItem Header="打开咒语" x:Name="MenuItemLoadSpell" Click="MenuItemLoadSpell_Click"/>
+                        <MenuItem Header="保存咒语" x:Name="MenuItemSaveSpell" Click="MenuItemSaveSpell_Click"/>
+                        <MenuItem Header="清空咒语" x:Name="MenuItemClear" Click="MenuItemClear_Click"/>
+                        <Separator Style="{DynamicResource MenuItemSeparator}"/>
+                        <MenuItem Header="粘贴咒语" x:Name="MenuItemParsePrompt" Click="MenuItemParsePrompt_Click"/>
+                        <MenuItem Header="刷新词库" x:Name="MenuItemReload" Click="MenuItemReload_Click"/>
+                        <Separator Style="{DynamicResource MenuItemSeparator}"/>
+                        <MenuItem Header="批量产图" x:Name="MenuItemBatch" Click="MenuItemBatch_Click"/>
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
+            <ListBox BorderThickness="0" x:Name="ListTagGroups" DisplayMemberPath="name" SelectionChanged="ListTagGroups_SelectionChanged" VerticalAlignment="Stretch"  HorizontalAlignment="Left" Width="115" ScrollViewer.VerticalScrollBarVisibility="Auto" Margin="15,40,0,10" ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+            <Rectangle VerticalAlignment="Stretch"   Margin="135,40,0,10" HorizontalAlignment="Left" Width="1" Fill="{DynamicResource ControlBrightDefaultBorderBrush}"/>
+            <TextBox WindowChrome.IsHitTestVisibleInChrome="True" Margin="141,40,0,0" HorizontalAlignment="Stretch" x:Name="TextSearchTag" TextChanged="TextSearchTag_TextChanged" TextWrapping="NoWrap" VerticalAlignment="Top" >
+                <TextBox.Resources>
+                    <Style TargetType="{x:Type TextBox}">
+                        <Setter Property="Background" Value="{DynamicResource ControlBrightDefaultBackground}" />
+                        <Setter Property="BorderBrush" Value="{DynamicResource ControlBrightDefaultBackground}" />
+                        <Setter Property="Foreground" Value="{DynamicResource ControlDefaultForeground}" />
+                        <Setter Property="CaretBrush" Value="{DynamicResource ControlDefaultForeground}" />
+                        <Setter Property="SelectionBrush" Value="{DynamicResource ControlPrimaryColourBackground}" />
+                        <Setter Property="IsInactiveSelectionHighlightEnabled" Value="True" />
+                        <Setter Property="SelectionOpacity" Value="0.7" />
+                        <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="KeyboardNavigation.TabNavigation" Value="None" />
+                        <Setter Property="HorizontalContentAlignment" Value="Left" />
+                        <!--using VCA=top because a multilined textbox is assumed-->
+                        <Setter Property="VerticalContentAlignment" Value="Top" />
+                        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                        <Setter Property="AllowDrop" Value="true" />
+                        <Setter Property="ScrollViewer.PanningMode" Value="VerticalFirst" />
+                        <Setter Property="Stylus.IsFlicksEnabled" Value="False" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type TextBox}">
+                                    <Border x:Name="border" CornerRadius="5" Padding="4"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Background="{TemplateBinding Background}"
+                            SnapsToDevicePixels="True">
+                                        <Grid>
+                                            <ScrollViewer x:Name="PART_ContentHost" Margin="25,0,0,0"
+                                      Focusable="false"
+                                      HorizontalScrollBarVisibility="Hidden"
+                                      VerticalScrollBarVisibility="Hidden" />
+                                            <TextBlock x:Name="placeHolder" Text="搜索标签" Margin="30,0,0,0" Foreground="{DynamicResource ControlDisabledGlythColour}"/>
+                                            <Image Source="resources/search.png" HorizontalAlignment="Left" Width="16" Height="16"  Margin="5,0,0,0"  />
+                                        </Grid>
+
+
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsEnabled" Value="false">
+                                            <Setter Property="Opacity" TargetName="border" Value="0.56" />
+                                        </Trigger>
+                                        <Trigger Property="IsKeyboardFocused" Value="true">
+                                            <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource ControlSelectedBorderBrush}" />
+                                            <Setter Property="Background" Value="{DynamicResource ContainerBackground}" />
+                                            <Setter Property="BorderThickness" Value="1" />
+                                        </Trigger>
+                                        <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource Self}, Converter={StaticResource EmptyStringToNullConverter}}" Value="{x:Null}">
+                                            <!-- 触发A -->
+                                            <Setter Property="Visibility" TargetName="placeHolder" Value="Visible" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource Self}, Converter={StaticResource EmptyStringToNullConverter}}" Value="not null">
+                                            <!-- 触发B -->
+                                            <Setter Property="Visibility" TargetName="placeHolder" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsInactiveSelectionHighlightEnabled" Value="true" />
+                                    <Condition Property="IsSelectionActive" Value="false" />
+                                </MultiTrigger.Conditions>
+                                <Setter Property="SelectionBrush" Value="{DynamicResource ControlDisabledGlythColour}" />
+                            </MultiTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBox.Resources>
+            </TextBox>
+            <ListBox BorderThickness="0" x:Name="ListTags"  DisplayMemberPath="nameInList" MouseDoubleClick="ListTags_MouseDoubleClick" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"   Margin="141,70,0,10" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="ToolTip">
+                            <Setter.Value>
+                                <ToolTip Placement="Left">
+                                    <local:TagTips TagTipsValue="{Binding tagTipsData}"></local:TagTips>
+                                </ToolTip>
+                            </Setter.Value>
+
+                        </Setter>
+                        <Setter Property="ToolTipService.BetweenShowDelay" Value="0"/>
+                        <Setter Property="ToolTipService.InitialShowDelay" Value="0"/>
+
+                        <Setter Property="SnapsToDevicePixels" Value="True" />
+                        <Setter Property="Padding" Value="2" />
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="BorderBrush" Value="Transparent" />
+                        <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="FocusVisualStyle" Value="{DynamicResource FocusVisual}" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                    <Border x:Name="Bd" CornerRadius="2" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsMouseOver" Value="True" />
+                                            </MultiTrigger.Conditions>
+                                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ControlSelectedBackground}" />
+                                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource ControlMouseOverBorderBrush}" />
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive" Value="False" />
+                                                <Condition Property="IsSelected" Value="True" />
+                                            </MultiTrigger.Conditions>
+                                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ControlDefaultBackground}" />
+                                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource ControlDefaultBorderBrush}" />
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive" Value="True" />
+                                                <Condition Property="IsSelected" Value="True" />
+                                            </MultiTrigger.Conditions>
+                                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ControlMouseOverBackground}" />
+                                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource ControlSelectedBorderBrush}" />
+                                        </MultiTrigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ControlDisabledGlythColour}" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.GroupStyle>
+                    <GroupStyle>
+                        <GroupStyle.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+                            </DataTemplate>
+                        </GroupStyle.HeaderTemplate>
+                    </GroupStyle>
+                </ListBox.GroupStyle>
+            </ListBox>
+        </Grid>
+
+        <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" />
+
+        <!-- 中间栏 -->
+        <Border Grid.Column="2"   Background="{DynamicResource BackgroundBrightColour}" >
+            <Grid >
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="320"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <!-- 咒语框上方tabs -->
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10,5" Height="40">
+
+                        <RadioButton  Content="正咒" x:Name="RadioButtonPositive" Checked="RadioButtonPositive_Checked" GroupName="TabPrompt" IsChecked="True" WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource {x:Type ToggleButton}}" Height="25" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center"/>
+                        <RadioButton  Content="反咒" x:Name="RadioButtonNegative" Checked="RadioButtonNegative_Checked" GroupName="TabPrompt" WindowChrome.IsHitTestVisibleInChrome="True" Style="{DynamicResource {x:Type ToggleButton}}" Height="25" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,5,10,0" Height="40">
+                        <Button WindowChrome.IsHitTestVisibleInChrome="True" x:Name="ButtonCopyPositivePrompt" Click="ButtonCopyPositivePrompt_Click" Content="复制正咒" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                        <Button WindowChrome.IsHitTestVisibleInChrome="True" x:Name="ButtonCopyNagativePrompt" Click="ButtonCopyNagativePrompt_Click" Content="复制反咒" HorizontalAlignment="Right" Margin="0,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <!-- 咒语框 -->
+                    <Border CornerRadius="10" Background="{DynamicResource ControlBrightDefaultBackground}" BorderThickness="0" Margin="10,50,10,0" VerticalAlignment="Top" Height="260" HorizontalAlignment="Stretch">
+                        <ScrollViewer  VerticalScrollBarVisibility="Auto" Margin="5,5,5,5"  >
+
+                            <WrapPanel Name="TagsContainer" DragOver="TagsContainer_DragOver" Drop="TagsContainer_Drop" DragLeave="TagsContainer_DragLeave" DragEnter="TagsContainer_DragEnter" AllowDrop="True" Background="Transparent" >
+                            </WrapPanel>
+                    
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="143"/>
+                        <ColumnDefinition Width="325" MinWidth="325"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="50"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Center"  Height="30">
+                            <Label Content="Seed:" x:Name="TextImageDesc" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center"/>
+                            <Button x:Name="ButtonSaveImage" Click="ButtonSaveImage_Click"  Content="保存图片" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                            <Button x:Name="ButtonUseSeed" Click="ButtonUseSeed_Click"  Content="使用种子" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                            <Button x:Name="ButtonAsRef" Click="ButtonAsRef_Click"  Content="作为参考" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" Cursor="Hand"/>
+                            <Button x:Name="ButtonSavePreview" Click="ButtonSavePreview_Click"  Content="存为预览" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ProgressBar BorderThickness="0" x:Name="ProgressGen" HorizontalAlignment="Stretch" Grid.Row="0" Height="10" Margin="10,40,10,0" VerticalAlignment="Top"  />
+                        <!-- 预览图-->
+                        <Image Grid.Row="1" HorizontalAlignment="Stretch" x:Name="ImagePreview"  Margin="10,0,10,10" Stretch="Uniform" VerticalAlignment="Stretch" PreviewMouseLeftButtonDown="ImagePreview_PreviewMouseLeftButtonDown"
+                               PreviewMouseLeftButtonUp="ImagePreview_PreviewMouseLeftButtonUp" PreviewMouseMove="ImagePreview_PreviewMouseMove"/>
+                        <Border x:Name="ProgressPreview" Grid.Row="1" Visibility="Collapsed"   Margin="10,0,10,10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  Background="{DynamicResource BackgroundBrightColour}" BorderBrush="Gray" BorderThickness="0" >
+                          
+                                <Image  HorizontalAlignment="Stretch" x:Name="ImageProgressPreview"  Margin="0,0,0,0" Stretch="Uniform" VerticalAlignment="Stretch"/>
+                           
+                        </Border>
+                        
+                    </Grid>
+                    <!-- 图片列表-->
+                    <ListView Grid.Column="1"   x:Name="ListImages" BorderThickness="0" SelectionChanged="ListImages_SelectionChanged" Margin="0,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Stretch"  SelectionMode="Single" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="1" HorizontalAlignment="Center" VerticalAlignment="Top" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ListView.ItemTemplate >
+                            <DataTemplate>
+                                <Image Source="{Binding image}"  HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Width="128" Height="128" />
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                        <ListView.Resources>
+                            <Style TargetType="GridViewColumnHeader">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </Style>
+                        </ListView.Resources>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+
+                                <Setter Property="SnapsToDevicePixels" Value="True" />
+                                <Setter Property="Padding" Value="5" />
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="BorderBrush" Value="Transparent" />
+                                <Setter Property="BorderThickness" Value="0" />
+                                <Setter Property="FocusVisualStyle" Value="{DynamicResource FocusVisual}" />
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                            <Border x:Name="Bd" CornerRadius="5" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <MultiTrigger>
+                                                    <MultiTrigger.Conditions>
+                                                        <Condition Property="IsMouseOver" Value="True" />
+                                                    </MultiTrigger.Conditions>
+                                                    <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ControlSelectedBackground}" />
+                                                    <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource ControlMouseOverBorderBrush}" />
+                                                </MultiTrigger>
+                                                <MultiTrigger>
+                                                    <MultiTrigger.Conditions>
+                                                        <Condition Property="Selector.IsSelectionActive" Value="False" />
+                                                        <Condition Property="IsSelected" Value="True" />
+                                                    </MultiTrigger.Conditions>
+                                                    <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ControlDefaultBackground}" />
+                                                    <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource ControlDefaultBorderBrush}" />
+                                                </MultiTrigger>
+                                                <MultiTrigger>
+                                                    <MultiTrigger.Conditions>
+                                                        <Condition Property="Selector.IsSelectionActive" Value="True" />
+                                                        <Condition Property="IsSelected" Value="True" />
+                                                    </MultiTrigger.Conditions>
+                                                    <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ControlMouseOverBackground}" />
+                                                    <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource ControlSelectedBorderBrush}" />
+                                                </MultiTrigger>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ControlDisabledGlythColour}" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+
+                    <!-- 生成功能-->
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled"  VerticalScrollBarVisibility="Auto" Grid.Column="2" HorizontalAlignment="Stretch" Margin="10,0,5,0" >
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Margin="0,0,5,0" >
+ 
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,0,0,0" Height="30">
+                                <Button Style="{DynamicResource LargeButton}" x:Name="ButtonGenerate" Click="ButtonGenerate_Click" Content="生成"  HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center"/>
+                                <Button Style="{DynamicResource LargeButton}" x:Name="ButtonInterrupt" Click="ButtonInterrupt_Click" Content="中止"  HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center" Visibility="Collapsed"/>
+                            </StackPanel>
+                        <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,5,0,0" Height="30">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="50"/>
+                            </Grid.ColumnDefinitions>
+                            <Label Content="批数" Grid.Column="0" HorizontalAlignment="Left"  VerticalAlignment="Center"/>
+                            <Slider x:Name="SliderBatchCount" Grid.Column="1" ValueChanged="SliderBatchCount_ValueChanged" HorizontalAlignment="Stretch"  IsSnapToTickEnabled="True" VerticalAlignment="Center"  Minimum="1" Maximum="32" TickFrequency="1"/>
+                            <Label x:Name="TextBatchCount" Content="16" Grid.Column="2" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,5,0,0" Height="30">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="50"/>
+                            </Grid.ColumnDefinitions>
+                            <Label Content="宽" Grid.Column="0" HorizontalAlignment="Left"  VerticalAlignment="Center"/>
+                            <Slider x:Name="SliderImageWidth" Grid.Column="1" ValueChanged="SliderImageWidth_ValueChanged" HorizontalAlignment="Stretch"  VerticalAlignment="Center"  Minimum="64" Maximum="2048" IsSnapToTickEnabled="True" TickFrequency="64"/>
+                            <Label x:Name="TextImageWidth" Content="512" Grid.Column="2" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,5,0,0" Height="30">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="50"/>
+                            </Grid.ColumnDefinitions>
+                            <Label Content="高" Grid.Column="0" HorizontalAlignment="Left"  VerticalAlignment="Center"/>
+                            <Slider x:Name="SliderImageHeight" Grid.Column="1" ValueChanged="SliderImageHeight_ValueChanged"  HorizontalAlignment="Stretch"  VerticalAlignment="Center"  Minimum="64" Maximum="2048" IsSnapToTickEnabled="True" TickFrequency="64"/>
+                            <Label x:Name="TextImageHeight" Content="512" Grid.Column="2" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,5,0,0" Height="30">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Label Content="Seed" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            <TextBox x:Name="TextSeed" Grid.Column="1" HorizontalAlignment="Stretch" TextWrapping="Wrap" Text="-1" VerticalAlignment="Center"  InputMethod.IsInputMethodEnabled="False" PreviewTextInput="TextSeed_PreviewTextInput" TextChanged="TextSeed_TextChanged"/>
+                        </Grid>
+                        <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,5,0,0" Height="30">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Label Content="图生图" HorizontalAlignment="Left" Grid.Column="0" VerticalAlignment="Center"/>
+                            <CheckBox Content="" HorizontalAlignment="Left" Grid.Column="1"  VerticalAlignment="Center" x:Name="CheckRefImage"/>
+                            <StackPanel Grid.Column="1"  Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="40,0,0,0" Height="30">
+                                <Button x:Name="ButtonBrowseRef"  Content="载入图片" Click="ButtonBrowseRef_Click"  HorizontalAlignment="Left" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                <Button x:Name="ButtonToTags"  Content="反查Tag" Click="ButtonToTags_Click"  HorizontalAlignment="Left" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                        <Border Height="315" AllowDrop="True"  Drop="ImageRef_Drop" Margin="0,5,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="315" Background="{DynamicResource ControlBrightDefaultBackground}" BorderBrush="Gray" BorderThickness="0">
+                            <Border AllowDrop="True"  Drop="ImageRef_Drop"  VerticalAlignment="Center" HorizontalAlignment="Center" >
+                                <Border.Background>
+                                    <DrawingBrush TileMode="Tile" Stretch="Uniform" ViewportUnits="Absolute" Viewport="0,0,20,20">
+                                        <DrawingBrush.Drawing>
+                                            <DrawingGroup>
+                                                <DrawingGroup.Children>
+                                                    <GeometryDrawing Brush="#FFFFFFFF">
+                                                        <GeometryDrawing.Geometry>
+                                                            <RectangleGeometry Rect="0,0,10,10"/>
+                                                        </GeometryDrawing.Geometry>
+                                                    </GeometryDrawing>
+                                                    <GeometryDrawing Brush="#FFBFBFBF">
+                                                        <GeometryDrawing.Geometry>
+                                                            <RectangleGeometry Rect="0,0,5,5"/>
+                                                        </GeometryDrawing.Geometry>
+                                                    </GeometryDrawing>
+                                                    <GeometryDrawing Brush="#FFBFBFBF">
+                                                        <GeometryDrawing.Geometry>
+                                                            <RectangleGeometry Rect="5,5,5,5"/>
+                                                        </GeometryDrawing.Geometry>
+                                                    </GeometryDrawing>
+                                                </DrawingGroup.Children>
+                                            </DrawingGroup>
+                                        </DrawingBrush.Drawing>
+                                    </DrawingBrush>
+                                </Border.Background>
+                                <Image x:Name="ImageRef" AllowDrop="True"  Drop="ImageRef_Drop" />
+                            </Border>
+                        </Border>
+
+                    </StackPanel>
+         
+                    </ScrollViewer>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <GridSplitter Grid.Column="3" HorizontalAlignment="Stretch" />
+
+        <!-- 右侧栏-->
+        <ScrollViewer HorizontalScrollBarVisibility="Disabled"  VerticalScrollBarVisibility="Auto" Grid.Column="4" HorizontalAlignment="Stretch" Margin="5,50,5,0" >
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Margin="10,0,5,0">
+                <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,0,0,0" Height="30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Label Content="正咒起手" x:Name="TextDefaultPromptTip" HorizontalAlignment="Left" Grid.Column="0" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="ComboBoxDefaultPrompt" HorizontalAlignment="Stretch"   VerticalAlignment="Center" Grid.Column="1" IsEditable="False" SelectionChanged="ComboBoxDefaultPrompt_SelectionChanged"/>
+                </Grid>
+                <TextBox x:Name="TextDefaultPrompt" TextChanged="TextDefaultPrompt_TextChanged" HorizontalAlignment="Stretch" Margin="0,10,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top"   Height="70"  ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+                <TextBox x:Name="TextPrompt" HorizontalAlignment="Stretch" Margin="0,10,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top"  Height="140" IsReadOnly="True" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,10,0,0" Height="30">
+                    <Button x:Name="ButtonLoadBaseData"  Content="加载数据" Click="ButtonLoadBaseData_Click" HorizontalAlignment="Left" Margin="0,0,10,0" VerticalAlignment="Center" Cursor="Hand"/>
+                    <Button x:Name="ButtonFetchModels"  Content="刷新模型" Click="ButtonFetchModels_Click" HorizontalAlignment="Left" Margin="0,0,10,0" VerticalAlignment="Center" Cursor="Hand"/>
+                    <Button x:Name="ButtonFetchCards"  Content="刷新额外模型" Click="ButtonFetchCards_Click"  HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center" Cursor="Hand"/>
+                </StackPanel>
+                <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,5,0,0" Height="30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Label Content="AI服务" Grid.Column="0" HorizontalAlignment="Left"  VerticalAlignment="Center"/>
+                    <ComboBox Grid.Column="1" x:Name="ComboBoxEngine" SelectionChanged="ComboBoxEngine_SelectionChanged" DisplayMemberPath="Name" HorizontalAlignment="Stretch"   VerticalAlignment="Center"   IsEditable="False"/>
+                </Grid>
+                <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,5,0,0" Height="30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Label Content="采样算法" HorizontalAlignment="Left" Grid.Column="0" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="ComboBoxSamplingMethod" HorizontalAlignment="Stretch"  DisplayMemberPath="webUIName" VerticalAlignment="Center" Grid.Column="1" IsEditable="False" SelectionChanged="ComboBoxSamplingMethod_SelectionChanged"/>
+                </Grid>
+                <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,5,0,0" Height="30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Label Content="模型" HorizontalAlignment="Left" Grid.Column="0" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="ComboBoxModel" SelectionChanged="ComboBoxModel_SelectionChanged" Grid.Column="1" HorizontalAlignment="Stretch"  VerticalAlignment="Center"  IsEditable="False"/>
+                </Grid>
+                <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,5,0,0" Height="30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Label Content="VAE" HorizontalAlignment="Left" Grid.Column="0" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="ComboBoxVae"  SelectionChanged="ComboBoxVae_SelectionChanged" Grid.Column="1" HorizontalAlignment="Stretch"  VerticalAlignment="Center"  IsEditable="False"/>
+                </Grid>
+                <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,5,0,0" Height="30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="50"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="采样步数" HorizontalAlignment="Left" Grid.Column="0" VerticalAlignment="Center"/>
+                    <Slider x:Name="SliderSamplingSteps" Grid.Column="1" ValueChanged="SliderSamplingSteps_ValueChanged"  HorizontalAlignment="Stretch"   VerticalAlignment="Center"  Minimum="5" Maximum="150" IsSnapToTickEnabled="True" TickFrequency="1"/>
+                    <Label x:Name="TextSamplingSteps" Grid.Column="2" Content="512" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                </Grid>
+                <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,5,0,0" Height="30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="50"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="CFG" HorizontalAlignment="Left" Grid.Column="0" VerticalAlignment="Center"/>
+                    <Slider x:Name="SliderCFGScale" ValueChanged="SliderCFGScale_ValueChanged"  HorizontalAlignment="Stretch" Grid.Column="1" VerticalAlignment="Center"  Minimum="1" Maximum="30"  IsSnapToTickEnabled="True" TickFrequency="0.5"/>
+                    <Label x:Name="TextCFGScale" Content="512" HorizontalAlignment="Left" Grid.Column="2" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                </Grid>
+                <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,5,0,0" Height="30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="50"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="重绘幅度" HorizontalAlignment="Left" Grid.Column="0" VerticalAlignment="Center"/>
+                    <Slider x:Name="SliderDenoisingStrength" ValueChanged="SliderDenoisingStrength_ValueChanged"  HorizontalAlignment="Stretch" Grid.Column="1" VerticalAlignment="Center"  Minimum="0" Maximum="1" IsSnapToTickEnabled="True" TickFrequency="0.05" />
+                    <Label x:Name="TextDenoisingStrength" Content="512" HorizontalAlignment="Left" Grid.Column="2" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                </Grid>
+                <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,5,0,0" Height="30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Label Content="自动分组" HorizontalAlignment="Left" Grid.Column="0" VerticalAlignment="Center"/>
+                    <CheckBox Content="" x:Name="CheckAutoGroup" Click="CheckAutoGroup_Click"  Grid.Column="1"  HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="True"/>
+                </Grid>
+                <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,5,0,0" Height="30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Label Content="高清修复" HorizontalAlignment="Left" Grid.Column="0" VerticalAlignment="Center"/>
+                    <CheckBox Content="" x:Name="CheckHighResFix" Grid.Column="1" Click="CheckHighResFix_Click" HorizontalAlignment="Left"  VerticalAlignment="Center" IsChecked="True"/>
+                </Grid>
+                <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,5,0,0" Height="30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Label Content="放大算法" HorizontalAlignment="Left" Grid.Column="0" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="ComboBoxUpscaler" SelectionChanged="ComboBoxUpscaler_SelectionChanged" Grid.Column="1" HorizontalAlignment="Stretch"  VerticalAlignment="Center"   IsEditable="False"/>
+                </Grid>
+                <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,5,0,0" Height="30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="50"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="放大倍数" HorizontalAlignment="Left" Grid.Column="0" VerticalAlignment="Center"/>
+                    <Slider x:Name="SliderScaleBy"  ValueChanged="SliderScaleBy_ValueChanged" HorizontalAlignment="Stretch" Grid.Column="1" VerticalAlignment="Center"   Minimum="1" Maximum="4" IsSnapToTickEnabled="True" TickFrequency="0.05" />
+                    <Label x:Name="TextScaleBy" Content="1" HorizontalAlignment="Left" Grid.Column="2" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                </Grid>
+                <Label Content="未启用高清修复" x:Name="TextHighResState" HorizontalAlignment="Left" Margin="0,5,0,0" VerticalAlignment="Top"/>
+                <Label HorizontalAlignment="Right" Margin="0,10,0,0"  Content="QQ群：256285020"></Label>
+                <TextBlock HorizontalAlignment="Right" Margin="0,5,0,0" TextWrapping="Wrap" VerticalAlignment="Top">爱发电：<Hyperlink x:Name="LinkWeb" NavigateUri="https://afdian.net/a/aispellbook" Click="Hyperlink_Click">https://afdian.net/a/aispellbook</Hyperlink></TextBlock>
+            </StackPanel>
+        </ScrollViewer>
+
+
+    </Grid>
+
+</Window>

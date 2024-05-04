@@ -1,0 +1,94 @@
+{
+    "txt2Img": {
+        "id": "txt2img_generate",
+        "data": [
+            "<taskId>", // id_task
+            "<positivePrompt>", // prompt
+            "<negativePrompt>", // negative_prompt
+            [], // prompt_styles
+            "<samplingSteps>", // steps
+            "<samplingMethod>", // sampler_index
+            false, // restore_faces
+            false, // tiling
+            "<batchCount>", // n_iter
+            "<batchSize>", // batch_size
+            "<cfgScale>", // cfg_scale
+            "<seed>", // seed
+            -1, // subseed
+            0, // subseed_strength
+            0, // seed_resize_from_h
+            0, // seed_resize_from_w
+            false, // seed_enable_extras
+            "<height>", // height
+            "<width>", // width
+            "<highResFix>", // enable_hr
+            "<denoisingStrength>", // denoising_strength
+            "<upscaleBy>", // hr_scale
+            "<upscaler>", // hr_upscaler
+            0, // hr_second_pass_steps
+            0, // hr_resize_x
+            0, // hr_resize_y
+            "<settings>", // override_settings_texts
+            "None", // script
+        ]
+    },
+    "img2Img": {
+        "id": "img2img_generate",
+        "data": [
+            "<taskId>", // id_task
+            0, // mode
+            "<positivePrompt>", // prompt
+            "<negativePrompt>", // negative_prompt
+            [], // prompt_styles
+            "<image>", // init_img
+            null, // sketch
+            null, // init_img_with_mask
+            null, // inpaint_color_sketch
+            null, // inpaint_color_sketch_orig
+            null, // init_img_inpaint
+            null, // init_mask_inpaint
+            "<samplingSteps>", // steps
+            "<samplingMethod>", // sampler_index
+            4, // mask_blur
+            0, // mask_alpha
+            "fill", // inpainting_fill
+            false, // restore_faces
+            false, // tiling
+            "<batchCount>", // n_iter
+            "<batchSize>", // batch_size
+            "<cfgScale>", // cfg_scale
+            1.5, //image_cfg_scale
+            "<denoisingStrength>", // denoising_strength
+            "<seed>", // seed
+            -1, // subseed
+            0, // subseed_strength
+            0, // seed_resize_from_h
+            0, // seed_resize_from_w
+            false, // seed_enable_extras
+            "<height>", // height
+            "<width>", // width
+            "Crop and resize", // resize_mode
+            "Whole picture", // inpaint_full_res
+            32, // inpaint_full_res_padding
+            "Inpaint masked", // inpainting_mask_invert
+            "", // img2img_batch_input_dir
+            "", // img2img_batch_output_dir
+            "", // img2img_batch_inpaint_mask_dir
+            "<settings>", // override_settings_texts
+            "None", // script
+        ]
+    },
+    "deepbooru": {
+        "id": "deepbooru",
+        "data": [
+            0, // mode
+            "", // ii_input_dir
+            "", // ii_output_dir
+            "<image>", // ii_singles
+            null,
+            null,
+            null,
+            null
+        ]
+    }
+}
